@@ -1,0 +1,18 @@
+# Core deep learning
+torch
+torchaudio
+
+# NVIDIA Speech framework
+nemo_toolkit[asr]
+
+# Audio processing
+librosa>=0.10.0
+soundfile>=0.12.1
+
+# Data processing
+numpy
+pandas
+
+# Utils
+tqdm
+pyyaml
