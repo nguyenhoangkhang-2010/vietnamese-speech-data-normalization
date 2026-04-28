@@ -1,0 +1,24 @@
+dataset:
+  audio_dir: data/raw/audio
+  text_dir: data/raw/transcripts
+
+audio:
+  sample_rate: 16000
+  normalize: true
+  trim_silence: true
+
+text:
+  lowercase: true
+  normalize_numbers: true
+  normalize_dates: true
+  expand_abbrev: true
+
+nemo:
+  use_pretrained: true
+  model: QuartzNet15x5Base-En
+
+output:
+  manifest_path: data/processed/manifest.jsonl
+
+eval:
+  wer: true
