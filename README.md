@@ -17,26 +17,43 @@ Dự án này xây dựng một hệ thống xử lý dữ liệu giọng nói t
 ## Project Structure
 
 ```text
-data
+├── configs
+│   └── config.yaml
+├── data
 │   ├── processed
 │   └── raw
 │       ├── audio
 │       └── transcripts
-│
 ├── demo
 ├── notebooks
 ├── pipeline
-│
+│   └── pipeline.py
 ├── src
 │   ├── alignment
 │   │   └── aligner.py
 │   ├── audio
+│   │   ├── loader.py
+│   │   ├── processor.py
+│   │   └── validator.py
 │   ├── dataset
 │   ├── evaluation
+│   │   ├── metrics.py
+│   │   └── report.py
 │   ├── text
+│   │   ├── rules
+│   │   │   ├── abbreviation.py
+│   │   │   ├── currency.py
+│   │   │   ├── date.py
+│   │   │   └── number.py
+│   │   ├── normalizer.py
+│   │   └── tokenizer.py
 │   └── utils
-│
+│       ├── file_utils.py
+│       └── logger.py
 ├── test
+│   ├── test_alignment.py
+│   ├── test_normalizer.py
+│   └── test_pipeline.py
 ├── .gitignore
 ├── README.md
 ├── main.py
