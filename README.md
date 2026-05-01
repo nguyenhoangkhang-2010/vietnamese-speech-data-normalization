@@ -1,21 +1,43 @@
-# Vietnamese Speech Data Normalization & Alignment System
+# Hệ thống Chuẩn hoá & Căn chỉnh Dữ liệu Giọng nói Tiếng Việt (NVIDIA NeMo Style)
 
-## Overview
-Dự án này xây dựng một hệ thống xử lý dữ liệu giọng nói tiếng Việt, bao gồm:
-- Chuẩn hóa văn bản (text normalization)
-- Tiền xử lý audio
-- Căn chỉnh (alignment) giữa audio và transcript
-- Đánh giá chất lượng dữ liệu
+## Tổng quan
 
-Ứng dụng:
-- Speech Recognition (ASR)
-- Text-to-Speech (TTS)
-- Forced Alignment
+Dự án này xây dựng một pipeline xử lý dữ liệu giọng nói tiếng Việt theo phong cách **NVIDIA NeMo**, giúp tạo dataset chất lượng cao cho các bài toán:
+
+- Nhận dạng giọng nói (ASR)
+- Tổng hợp giọng nói (TTS)
+- Căn chỉnh audio - văn bản (Forced Alignment)
+- Chuẩn hoá dữ liệu speech quy mô lớn
 
 ---
 
-## Project Structure
+## Chức năng chính
 
+### Text Normalization
+- Chuẩn hoá văn bản tiếng Việt
+- Xử lý số, ngày tháng, viết tắt
+- Làm sạch dữ liệu text cho ASR
+
+### Audio Processing
+- Resample về 16kHz
+- Chuẩn hoá biên độ
+- Loại bỏ khoảng lặng (silence trimming)
+
+### Alignment (Căn chỉnh)
+- Căn audio với transcript
+- Thiết kế theo hướng NeMo CTC / ASR alignment
+
+### Dataset Builder
+- Chuyển dữ liệu thô thành `manifest.jsonl`
+- Tương thích NVIDIA NeMo training format
+
+### Evaluation
+- Tính Word Error Rate (WER)
+- Thống kê chất lượng dataset
+
+---
+
+## Cấu trúc project
 ```text
 ├── configs
 │   └── config.yaml
@@ -25,7 +47,9 @@ Dự án này xây dựng một hệ thống xử lý dữ liệu giọng nói t
 │       ├── audio
 │       └── transcripts
 ├── demo
+│   └── run_demo.py
 ├── notebooks
+│   └── data_exploration.ipynb
 ├── pipeline
 │   └── pipeline.py
 ├── src
@@ -36,9 +60,11 @@ Dự án này xây dựng một hệ thống xử lý dữ liệu giọng nói t
 │   │   ├── processor.py
 │   │   └── validator.py
 │   ├── dataset
+│   │   └── builder.py
 │   ├── evaluation
 │   │   ├── metrics.py
-│   │   └── report.py
+│   │   ├── report.py
+│   │   └── wer.py
 │   ├── text
 │   │   ├── rules
 │   │   │   ├── abbreviation.py
@@ -60,97 +86,126 @@ Dự án này xây dựng một hệ thống xử lý dữ liệu giọng nói t
 └── requirements.txt
 ```
 
----
+## Cài đặt
 
-## Installation
+### 1. Clone project
 
-### 1. Clone repository
-```bash
-git clone <your-repo-url>
-cd <your-project>
-```
+    git clone <your-repo-url>
+    cd vietnamese-speech-nemo
 
-### 2. Tạo virtual environment
-```bash
-python -m venv .venv
-source .venv/bin/activate     # Linux/Mac
-.venv\Scripts\activate        # Windows
-```
+### 2. Tạo môi trường ảo
+
+    python -m venv .venv
+
+Windows:
+    
+    .venv\Scripts\activate
+
+Linux/Mac:
+    
+    source .venv/bin/activate
 
 ### 3. Cài dependencies
-```bash
-pip install -r requirements.txt
-```
+
+    pip install -r requirements.txt
 
 ---
 
-## Usage
+## Chạy project
 
-### Chạy chương trình chính
-```bash
-python main.py
-```
+### Chạy toàn bộ pipeline
 
-### Chạy pipeline (nếu có)
-```bash
-python pipeline/run_pipeline.py
-```
+    python main.py
+
+### Chạy demo
+
+    python demo/run_demo.py
 
 ---
 
-## Main Components
+## Luồng xử lý dữ liệu
 
-### Text Processing (`src/text`)
-- Normalize text (lowercase, remove noise)
-- Xử lý số, ngày tháng, ký tự đặc biệt
-
-### Audio Processing (`src/audio`)
-- Resampling
-- Trim silence
-- Noise handling
-
-### Alignment (`src/alignment`)
-- Căn chỉnh audio với transcript
-- Có thể dùng CTC / MFA / custom
-
-### Dataset (`src/dataset`)
-- Load dữ liệu từ `data/raw`
-- Chuẩn hóa format
-
-### Evaluation (`src/evaluation`)
-- Metrics đánh giá alignment
+Raw Audio + Transcript  
+→ Text Normalization (normalizer.py)  
+→ Audio Processing (processor.py)  
+→ Alignment (aligner.py - NeMo style)  
+→ Dataset Builder (manifest.jsonl)  
+→ Evaluation (WER + metrics)
 
 ---
 
-## Data Flow
+## Các module chính
 
-```text
-Raw Data → Text Processing → Audio Processing
-         → Alignment → Processed Data → Evaluation
-```
+### src/text
+- number.py
+- date.py
+- abbreviation.py
+- currency.py
+
+### src/audio
+- loader
+- processor
+- validator
+
+### src/alignment
+- Forced alignment theo CTC (NeMo style)
+
+### src/dataset
+- Tạo manifest.jsonl chuẩn NeMo
+
+### src/evaluation
+- WER calculation
+- Quality report
 
 ---
 
-## Testing
-```bash
-pytest test/
-```
+## notebooks
+
+Dùng để:
+- EDA dữ liệu
+- Test normalization
+- Debug alignment
+- Thử nghiệm ASR model
+
+---
+
+## demo
+
+- run_demo.py: chạy full pipeline
+- demo_cli.py: test nhanh input
+
+---
+
+## Test
+
+    pytest test/
 
 ---
 
 ## Requirements
-- Python >= 3.8
-- Xem `requirements.txt`
+
+- Python >= 3.13
+- torch
+- torchaudio
+- nemo_toolkit[asr]
+- librosa
+- numpy
+- jiwer
+- pyyaml
 
 ---
 
-## Future Improvements
-- [ ] Multi-speaker alignment
-- [ ] Pretrained ASR integration
-- [ ] Visualization tool
-- [ ] Optimize performance
+## Hướng phát triển
+
+- NeMo Conformer / QuartzNet integration
+- Forced alignment có timestamp thật
+- GPU batch processing
+- Data augmentation
+- Streamlit UI
+- Docker deployment
 
 ---
 
-## Author
-- Nguyễn Hoàng Khang
+## Tác giả
+
+Nguyễn Hoàng Khang

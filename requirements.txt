@@ -13,3 +13,5 @@ tqdm
 pyyaml
 requests
 pandas
+pydub
+matplotlib
