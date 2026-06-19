@@ -15,3 +15,4 @@ requests
 pandas
 pydub
 matplotlib
+lyricsgenius
