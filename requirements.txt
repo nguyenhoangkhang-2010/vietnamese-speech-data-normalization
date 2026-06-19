@@ -17,3 +17,4 @@ pydub
 matplotlib
 lyricsgenius
 python-dotenv
+yt-dlp

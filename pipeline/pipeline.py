@@ -44,7 +44,7 @@ def auto_fetch_lyrics(audio_path):
             logger.warning(f"Không tìm thấy lời bài hát cho: {song}. Tạo file rỗng.")
             os.makedirs(transcript_path.parent, exist_ok=True)
             with open(transcript_path, "w", encoding="utf-8") as f:
-                f.write(" ")
+                raise FileNotFoundError(f"Không tìm thấy lời bài hát cho: {song}. Vui lòng tạo file thủ công tại {transcript_path}")
                 
     except Exception as e:
         logger.warning(f"Đã xảy ra lỗi khi tải lời bài hát: {e}")
@@ -63,8 +63,12 @@ def run_pipeline(config_path):
 
     for item in data:
         transcript_path = auto_fetch_lyrics(item["audio_path"])
+        print(f"DEBUG: Đang đọc lời từ: {transcript_path}") 
         with open(transcript_path, "r", encoding="utf-8") as f:
-            item["text"] = f.read()
+            content = f.read().strip()
+            if not content:
+                raise ValueError(f"File {transcript_path} bị trống! Pipeline dừng lại.")
+            item["text"] = content
 
     audio_proc = AudioProcessor(cfg)
     text_norm = TextNormalizer(cfg)
