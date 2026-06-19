@@ -11,6 +11,7 @@ from src.text.normalizer import TextNormalizer
 from src.alignment.aligner import NemoAligner
 from src.dataset.builder import ManifestBuilder
 from src.evaluation.report import generate_report
+from src.utils.lyrics_fetcher import fetch_lyrics
 
 logger = get_logger()
 
@@ -33,32 +34,24 @@ def auto_fetch_lyrics(audio_path):
         song = filename.replace("-", "").strip()
 
     logger.info(f"Đang tìm lời cho bài: {song} của {artist}")
-    url = f"https://www.azlyrics.com/lyrics/{artist}/{song}.html"
     
     try:
-        headers = {'User-Agent': 'Mozilla/5.0'}
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.content, 'html.parser')
-            
-            if "captcha" in response.text.lower():
-                logger.error(f"AZLyrics trả về Captcha cho bài {song}. Bỏ qua.")
-            else:
-                main_div = soup.find('div', {'class': 'col-xs-12 col-sm-8 col-md-8 col-lg-8'})
-                if main_div:
-                    lyrics_div = main_div.find_all('div')[5]
-                    lyrics = lyrics_div.get_text().strip()
-                    
-                    os.makedirs(transcript_path.parent, exist_ok=True)
-                    with open(transcript_path, "w", encoding="utf-8") as f:
-                        f.write(lyrics)
-                    return str(transcript_path)
+        success = fetch_lyrics(artist, song, str(transcript_path))
+        
+        if success:
+            logger.info(f"Đã tải thành công lời bài hát cho: {song}")
+        else:
+            logger.warning(f"Không tìm thấy lời bài hát cho: {song}. Tạo file rỗng.")
+            os.makedirs(transcript_path.parent, exist_ok=True)
+            with open(transcript_path, "w", encoding="utf-8") as f:
+                f.write(" ")
+                
     except Exception as e:
-        logger.warning(f"Không thể tải lời tự động: {e}")
-    
-    os.makedirs(transcript_path.parent, exist_ok=True)
-    with open(transcript_path, "w", encoding="utf-8") as f:
-        f.write(" ")
+        logger.warning(f"Đã xảy ra lỗi khi tải lời bài hát: {e}")
+        os.makedirs(transcript_path.parent, exist_ok=True)
+        with open(transcript_path, "w", encoding="utf-8") as f:
+            f.write(" ")
+            
     return str(transcript_path)
 
 def run_pipeline(config_path):

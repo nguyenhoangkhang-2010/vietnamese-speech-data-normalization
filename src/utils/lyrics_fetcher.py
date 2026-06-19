@@ -1,21 +1,25 @@
 import lyricsgenius
 import os
+from dotenv import load_dotenv
 
-TOKEN = "oJKvchIXt9bLO7rLD3RwrENSbcHGoceixKT8DN11rCWJeNxPZPsQ4l0VtWoOVOmA"
-genius = lyricsgenius.Genius(TOKEN)
 
-def get_lyrics_genius(artist_name, song_name, save_path):
-    if os.path.exists(save_path):
-        with open(save_path, 'r', encoding='utf-8') as f:
-            return f.read()
+load_dotenv()
+GENIUS_TOKEN = os.getenv("GENIUS_TOKEN")
+genius = lyricsgenius.Genius(GENIUS_TOKEN)
+genius.verbose = False 
 
+def fetch_lyrics(artist, song, save_path):
+    if os.path.exists(save_path) and os.path.getsize(save_path) > 1:
+        return True
+    
     try:
-        song = genius.search_song(song_name, artist_name)
-        if song:
-            lyrics = song.lyrics
-            with open(save_path, 'w', encoding='utf-8') as f:
-                f.write(lyrics)
-            return lyrics
+        time.sleep(random.uniform(2, 5))
+        song_data = genius.search_song(song, artist)
+        if song_data:
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            with open(save_path, "w", encoding="utf-8") as f:
+                f.write(song_data.lyrics)
+            return True
     except Exception as e:
-        print(f"Lỗi lấy lời từ Genius: {e}")
-    return None
+        print(f"Lỗi khi gọi API Genius: {e}")
+    return False

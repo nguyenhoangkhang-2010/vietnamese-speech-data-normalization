@@ -16,3 +16,4 @@ pandas
 pydub
 matplotlib
 lyricsgenius
+python-dotenv
