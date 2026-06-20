@@ -11,47 +11,28 @@ from src.text.normalizer import TextNormalizer
 from src.alignment.aligner import NemoAligner
 from src.dataset.builder import ManifestBuilder
 from src.evaluation.report import generate_report
-from src.utils.lyrics_fetcher import fetch_lyrics
+from src.utils.transcriber import fetch_lyrics
 
 logger = get_logger()
 
 def auto_fetch_lyrics(audio_path):
     path = pathlib.Path(audio_path)
     transcript_path = path.parent.parent / "transcripts" / f"{path.stem}.txt"
-    
     if os.path.exists(transcript_path) and os.path.getsize(transcript_path) > 1:
         return str(transcript_path)
-
-    filename = path.stem.lower()
-    if '_' in filename:
-        parts = filename.split('_')
-        artist = parts[0].strip()
-        song = parts[1].strip()
-    else:
-        artist = path.parent.name.lower()
-        if artist == "audio": 
-            artist = "unknown_artist"
-        song = filename.replace("-", "").strip()
-
-    logger.info(f"Đang tìm lời cho bài: {song} của {artist}")
+    logger.info(f"Đang tạo lời tự động cho: {path.name} bằng Whisper...")
     
     try:
-        success = fetch_lyrics(artist, song, str(transcript_path))
-        
+        success = fetch_lyrics(None, path.stem, str(transcript_path))
         if success:
-            logger.info(f"Đã tải thành công lời bài hát cho: {song}")
+            logger.info(f"Đã tạo xong lời bài hát cho: {path.stem}")
         else:
-            logger.warning(f"Không tìm thấy lời bài hát cho: {song}. Tạo file rỗng.")
-            os.makedirs(transcript_path.parent, exist_ok=True)
-            with open(transcript_path, "w", encoding="utf-8") as f:
-                raise FileNotFoundError(f"Không tìm thấy lời bài hát cho: {song}. Vui lòng tạo file thủ công tại {transcript_path}")
+            raise Exception("Whisper không thể tạo file lời.")
                 
     except Exception as e:
-        logger.warning(f"Đã xảy ra lỗi khi tải lời bài hát: {e}")
-        os.makedirs(transcript_path.parent, exist_ok=True)
+        logger.error(f"Đã xảy ra lỗi khi tạo lời bài hát: {e}")
         with open(transcript_path, "w", encoding="utf-8") as f:
             f.write(" ")
-            
     return str(transcript_path)
 
 def run_pipeline(config_path):

@@ -18,3 +18,6 @@ matplotlib
 lyricsgenius
 python-dotenv
 yt-dlp
+openai-whisper
+demucs
+torchcodec
