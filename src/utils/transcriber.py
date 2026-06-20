@@ -1,4 +1,4 @@
-import whisper
+from faster_whisper import WhisperModel
 import pathlib
 import os
 from src.utils.separator import separate_vocals
@@ -9,28 +9,33 @@ def fetch_lyrics(artist, song, save_path):
     
     try:
         vocal_path_str = separate_vocals(str(audio_path))
-        vocal_path = pathlib.Path(vocal_path_str)
+        search_dir = pathlib.Path("data/raw/audio/separated/htdemucs")
+        found_files = list(search_dir.rglob("vocals.mp3"))
+        vocal_path = next((f for f in found_files if song in str(f)), None)
     except Exception as e:
         print(f"Lỗi tách nhạc: {e}")
         return False
     
-    if not vocal_path.exists() or os.path.getsize(vocal_path) < 1000:
-        print(f"Lỗi: File âm thanh {vocal_path} không tồn tại hoặc quá nhỏ.")
+    if not vocal_path or not vocal_path.exists() or os.path.getsize(vocal_path) < 10000:
+        print(f"Lỗi: Không tìm thấy file vocals.mp3 hợp lệ tại {vocal_path}")
         return False
 
     try:
-        print(f"--- Đang bắt đầu Transcribe với Whisper ---")
-        model = whisper.load_model("large-v3")
+        print(f"--- Đang bắt đầu Transcribe bằng Faster-Whisper ---")
+        model = WhisperModel("large-v3", device="cpu", compute_type="int8")
         
-        result = model.transcribe(
+        segments, info = model.transcribe(
             str(vocal_path), 
-            language=None,
-            initial_prompt="Đây là bài hát đa ngôn ngữ, bao gồm tiếng Việt và tiếng Anh."
+            beam_size=5,
+            vad_filter=True,
+            vad_parameters=dict(min_silence_duration_ms=500),
+            temperature=0
         )
-        text = result["text"].strip()
+        
+        text = " ".join([seg.text for seg in segments]).strip()
         
         if not text:
-            print("Cảnh báo: Whisper không nhận diện được nội dung (kết quả rỗng).")
+            print("Cảnh báo: Không nhận diện được lời (có thể file vocal bị im lặng).")
             return False
             
         with open(save_path, "w", encoding="utf-8") as f:
@@ -40,5 +45,5 @@ def fetch_lyrics(artist, song, save_path):
         return True
         
     except Exception as e:
-        print(f"Lỗi trong quá trình Transcribe: {e}")
+        print(f"Lỗi hệ thống trong quá trình Transcribe: {e}")
         return False
