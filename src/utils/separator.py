@@ -10,7 +10,9 @@ def separate_vocals(audio_path):
     subprocess.run(cmd, check=True)
     
     temp_vocal_path = output_dir / "htdemucs" / audio_path.stem / "vocals.mp3"
-    final_vocal_path = audio_path.parent / f"{audio_path.stem}_clean.mp3"
+    final_vocal_path = audio_path.parent / f"{audio_path.stem}_clean.wav"
+    
+    print(f"DEBUG: Đang convert từ {temp_vocal_path} sang {final_vocal_path}")
     
     ffmpeg_cmd = [
         "ffmpeg", "-y", "-i", str(temp_vocal_path),
