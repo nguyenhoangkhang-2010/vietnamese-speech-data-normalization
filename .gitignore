@@ -1,3 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual env
+venv/
 .venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# Environment
 .env
-data/raw/
+.env.*
+
+# Logs
+*.log
+logs/
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# Cache
+.pytest_cache/
+.ipynb_checkpoints/
+.coverage
+
+# Audio dataset
+data/**/audio/*
+!data/**/audio/.gitkeep
+
+# Generated reports
+data/**/report.json
+
+# Temporary files
+*.tmp
+*.bak
