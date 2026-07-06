@@ -115,7 +115,7 @@ Linux/Mac:
 
 ### Chạy toàn bộ pipeline
 
-    python main.py
+    python main.py --input "ten.mp4"
 
 ### Chạy demo
 
