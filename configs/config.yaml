@@ -15,7 +15,13 @@ text:
 
 nemo:
   use_pretrained: true
-  model: QuartzNet15x5Base-En
+
+  models:
+    en: "QuartzNet15x5Base-En"
+    vi: "nvidia/parakeet-ctc-0.6b-Vietnamese"
+
+  default_language: vi
+  device: cpu
 
 output:
   manifest_path: data/processed/manifest.jsonl
