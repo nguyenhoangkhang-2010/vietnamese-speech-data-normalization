@@ -17,8 +17,8 @@ nemo:
   use_pretrained: true
 
   models:
-    en: "QuartzNet15x5Base-En"
-    vi: "nvidia/parakeet-ctc-0.6b-Vietnamese"
+    en: "models/en/QuartzNet15x5Base-En.nemo"
+    vi: "models/vi/parakeet-ctc-0.6b-vi.nemo"
 
   default_language: vi
   device: cpu

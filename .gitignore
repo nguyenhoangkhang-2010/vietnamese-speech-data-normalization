@@ -39,3 +39,7 @@ data/**/report.json
 # Temporary files
 *.tmp
 *.bak
+
+# Local AI model checkpoints
+models/*.nemo
+models/**/*.nemo
